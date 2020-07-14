@@ -362,12 +362,12 @@ http localhost:8081/orderStates/1
 
 ## 폴리글랏 퍼시스턴스
 
-앱프런트 (app) 는 서비스 특성상 많은 사용자의 유입과 상품 정보의 다양한 콘텐츠를 저장해야 하는 특징으로 인해 RDB 보다는 Document DB / NoSQL 계열의 데이터베이스인 Mongo DB 를 사용하기로 하였다. 이를 위해 order 의 선언에는 @Entity 가 아닌 @Document 로 마킹되었으며, 별다른 작업없이 기존의 Entity Pattern 과 Repository Pattern 적용과 데이터베이스 제품의 설정 (application.yml) 만으로 MongoDB 에 부착시켰다
+웹 프런트 (order) 는 서비스 특성상 많은 사용자의 유입과 상품 정보의 다양한 콘텐츠를 저장해야 하는 특징으로 인해 RDB 보다는 Document DB / NoSQL 계열의 데이터베이스인 Mongo DB 를 사용하기로 하였다. 이를 위해 order 의 선언에는 @Entity 가 아닌 @Document 로 마킹되었으며, 별다른 작업없이 기존의 Entity Pattern 과 Repository Pattern 적용과 데이터베이스 제품의 설정 (application.yml) 만으로 MongoDB 에 부착시켰다
 
 ```
 # Order.java
 
-package fooddelivery;
+package rental;
 
 @Document
 public class Order {
@@ -379,10 +379,12 @@ public class Order {
 }
 
 
-# 주문Repository.java
-package fooddelivery;
+# OrderRepository.java
+package rental;
 
-public interface 주문Repository extends JpaRepository<Order, UUID>{
+import org.springframework.data.repository.PagingAndSortingRepository;
+public interface OrderRepository extends PagingAndSortingRepository<Order, Long>{
+
 }
 
 # application.yml
@@ -431,7 +433,7 @@ CMD ["python", "policy-handler.py"]
 
 ## 동기식 호출 과 Fallback 처리
 
-분석단계에서의 조건 중 하나로 주문(app)->결제(pay) 간의 호출은 동기식 일관성을 유지하는 트랜잭션으로 처리하기로 하였다. 호출 프로토콜은 이미 앞서 Rest Repository 에 의해 노출되어있는 REST 서비스를 FeignClient 를 이용하여 호출하도록 한다. 
+분석단계에서의 조건 중 하나로 주문(order)->결제(payment) 간의 호출은 동기식 일관성을 유지하는 트랜잭션으로 처리하기로 하였다. 호출 프로토콜은 이미 앞서 Rest Repository 에 의해 노출되어있는 REST 서비스를 FeignClient 를 이용하여 호출하도록 한다. 
 
 - 결제서비스를 호출하기 위하여 Stub과 (FeignClient) 를 이용하여 Service 대행 인터페이스 (Proxy) 를 구현 
 
@@ -484,16 +486,16 @@ public interface PaymentService {
 # 결제 (pay) 서비스를 잠시 내려놓음 (ctrl+c)
 
 #주문처리
-http localhost:8081/orders item=통닭 storeId=1   #Fail
-http localhost:8081/orders item=피자 storeId=2   #Fail
+http localhost:8081/orders productId=1001 rentalPrice=10000 contractDate=20200714   #Fail
+http localhost:8081/orders productId=1002 rentalPrice=20000 contractDate=20200714   #Fail
 
 #결제서비스 재기동
-cd 결제
+cd payment
 mvn spring-boot:run
 
 #주문처리
-http localhost:8081/orders item=통닭 storeId=1   #Success
-http localhost:8081/orders item=피자 storeId=2   #Success
+http localhost:8081/orders productId=1001 rentalPrice=10000 contractDate=20200714   #Success
+http localhost:8081/orders productId=1002 rentalPrice=20000 contractDate=20200714   #Success
 ```
 
 - 또한 과도한 요청시에 서비스 장애가 도미노 처럼 벌어질 수 있다. (서킷브레이커, 폴백 처리는 운영단계에서 설명한다.)
@@ -504,86 +506,142 @@ http localhost:8081/orders item=피자 storeId=2   #Success
 ## 비동기식 호출 / 시간적 디커플링 / 장애격리 / 최종 (Eventual) 일관성 테스트
 
 
-결제가 이루어진 후에 상점시스템으로 이를 알려주는 행위는 동기식이 아니라 비 동기식으로 처리하여 상점 시스템의 처리를 위하여 결제주문이 블로킹 되지 않아도록 처리한다.
+결제가 이루어진 후에 상품시스템으로 이를 알려주는 행위는 동기식이 아니라 비 동기식으로 처리하여 상품 시스템의 처리를 위하여 결제주문이 블로킹 되지 않도록 처리한다.
  
 - 이를 위하여 결제이력에 기록을 남긴 후에 곧바로 결제승인이 되었다는 도메인 이벤트를 카프카로 송출한다(Publish)
  
 ```
-package fooddelivery;
+package rental;
+
+import org.springframework.beans.BeanUtils;
+import rental.external.Payment;
+import rental.external.PaymentService;
+
+import javax.persistence.*;
 
 @Entity
-@Table(name="결제이력_table")
-public class 결제이력 {
+@Table(name="Order_table")
+public class Order {
 
- ...
-    @PrePersist
-    public void onPrePersist(){
-        결제승인됨 결제승인됨 = new 결제승인됨();
-        BeanUtils.copyProperties(this, 결제승인됨);
-        결제승인됨.publish();
+    @Id
+    @GeneratedValue(strategy=GenerationType.AUTO)
+    private Long id;
+    private Long productId;
+    private Integer qty;
+    private String contractDate;
+    private String period;
+    private Integer rentalPrice;
+    private String status;
+
+    @PostPersist
+    public void onPostPersist(){
+
+        //결재 요청 후 kafka
+        Payment payment = new Payment();
+        payment.setOrderId(getId());
+        payment.setRentalPrice(getRentalPrice());
+        payment.setStatus("승인요청");
+        payment.setApprovalDate(getContractDate());
+        OrderApplication.applicationContext.getBean(PaymentService.class)
+            .approval(payment);
+
+        Ordered ordered = new Ordered();
+        BeanUtils.copyProperties(this, ordered);
+        ordered.publishAfterCommit();
+
     }
-
-}
 ```
-- 상점 서비스에서는 결제승인 이벤트에 대해서 이를 수신하여 자신의 정책을 처리하도록 PolicyHandler 를 구현한다:
+- 상품 서비스에서는 주문처리 이벤트에 대해서 이를 수신하여 자신의 정책을 처리하도록 PolicyHandler 를 구현한다:
 
 ```
-package fooddelivery;
+package rental;
 
-...
-
+```
 @Service
 public class PolicyHandler{
+    @StreamListener(KafkaProcessor.INPUT)
+    public void onStringEventListener(@Payload String eventString){
+
+    }
+    @Autowired
+    ProductRepository productRepository;
 
     @StreamListener(KafkaProcessor.INPUT)
-    public void whenever결제승인됨_주문정보받음(@Payload 결제승인됨 결제승인됨){
+    public void wheneverOrderCanceled_ProductChange(@Payload OrderCanceled orderCanceled){
 
-        if(결제승인됨.isMe()){
-            System.out.println("##### listener 주문정보받음 : " + 결제승인됨.toJson());
-            // 주문 정보를 받았으니, 요리를 슬슬 시작해야지..
-            
+        if(orderCanceled.isMe()){
+            Product product = new Product();
+            product.setId(orderCanceled.getId());
+            product.setAmount(product.getAmount() != null ? product.getAmount().intValue()+1 : 0 );
+            productRepository.save(product);
+            System.out.println("##### listener wheneverOrderCanceled_ProductChange : " + orderCanceled.toJson());
+        }
+    }
+    @StreamListener(KafkaProcessor.INPUT)
+    public void wheneverOrdered_ProductChange(@Payload Ordered ordered){
+
+        if(ordered.isMe()){
+            Product product = new Product();
+            product.setId(ordered.getId());
+            product.setAmount(product.getAmount() != null ? product.getAmount().intValue()-1 : 0 );
+            productRepository.save(product);
+            System.out.println("##### listener wheneverOrdered_ProductChange : " + ordered.toJson());
         }
     }
 
 }
 
 ```
-실제 구현을 하자면, 카톡 등으로 점주는 노티를 받고, 요리를 마친후, 주문 상태를 UI에 입력할테니, 우선 주문정보를 DB에 받아놓은 후, 이후 처리는 해당 Aggregate 내에서 하면 되겠다.:
+실제 구현을 하자면, 카톡 등으로 는 노티를 받고, 요리를 마친후, 주문 상태를 UI에 입력할테니, 우선 주문정보를 DB에 받아놓은 후, 이후 처리는 해당 Aggregate 내에서 하면 되겠다.:
   
 ```
-  @Autowired 주문관리Repository 주문관리Repository;
-  
-  @StreamListener(KafkaProcessor.INPUT)
-  public void whenever결제승인됨_주문정보받음(@Payload 결제승인됨 결제승인됨){
+package rental;
 
-      if(결제승인됨.isMe()){
-          카톡전송(" 주문이 왔어요! : " + 결제승인됨.toString(), 주문.getStoreId());
+```
+@Service
+public class PolicyHandler{
+    private static final String TOPIC_NAME = "rental";
+    @StreamListener(KafkaProcessor.INPUT)
+    public void onStringEventListener(@Payload String eventString){
 
-          주문관리 주문 = new 주문관리();
-          주문.setId(결제승인됨.getOrderId());
-          주문관리Repository.save(주문);
-      }
-  }
+    }
+
+    @StreamListener(KafkaProcessor.INPUT)
+    public void wheneverOrdered_Notify(@Payload Ordered ordered){
+        Properties props = new Properties();
+        props.put(ProducerConfig.BOOTSTRAP_SERVERS_CONFIG, "10.100.74.200:9092");
+        props.put(ProducerConfig.KEY_SERIALIZER_CLASS_CONFIG, StringSerializer.class.getName());
+        props.put(ProducerConfig.VALUE_SERIALIZER_CLASS_CONFIG, StringSerializer.class.getName());
+
+        KafkaProducer<String, String> producer = new KafkaProducer<>(props);
+
+        String message = "##### 주문이 완료되었습니다. 주문번호 : " + ordered.getId() + ", 상품번호 : " + ordered.getProductId();
+        ProducerRecord<String, String> record = new ProducerRecord<>(TOPIC_NAME, message);
+        if(ordered.isMe()){
+            producer.send(record,((recordMetadata, e) -> {}));
+            //System.out.println("##### 주문이 완료되었습니다. 주문번호 : " + ordered.getId() + ", 상품번호 : " + ordered.getProductId());
+        }
+    }
 
 ```
 
-상점 시스템은 주문/결제와 완전히 분리되어있으며, 이벤트 수신에 따라 처리되기 때문에, 상점시스템이 유지보수로 인해 잠시 내려간 상태라도 주문을 받는데 문제가 없다:
+상품 시스템은 주문/결제와 완전히 분리되어있으며, 이벤트 수신에 따라 처리되기 때문에, 상품시스템이 유지보수로 인해 잠시 내려간 상태라도 주문을 받는데 문제가 없다:
 ```
-# 상점 서비스 (store) 를 잠시 내려놓음 (ctrl+c)
+# 배송 서비스 (delivery) 를 잠시 내려놓음 (ctrl+c)
 
 #주문처리
-http localhost:8081/orders item=통닭 storeId=1   #Success
-http localhost:8081/orders item=피자 storeId=2   #Success
+http localhost:8081/orders productId=1001 rentalPrice=10000 contractDate=20200714   #Success
+http localhost:8081/orders productId=1002 rentalPrice=20000 contractDate=20200714   #Success
 
 #주문상태 확인
-http localhost:8080/orders     # 주문상태 안바뀜 확인
+http localhost:8081/orders     # 주문상태 안바뀜 확인
 
-#상점 서비스 기동
-cd 상점
+#배송 서비스 기동
+cd delivery
 mvn spring-boot:run
 
 #주문상태 확인
-http localhost:8080/orders     # 모든 주문의 상태가 "배송됨"으로 확인
+http localhost:8081/orderStates     # 모든 주문의 상태가 "배송됨"으로 확인
 ```
 
 
@@ -592,7 +650,7 @@ http localhost:8080/orders     # 모든 주문의 상태가 "배송됨"으로 �
 ## CI/CD 설정
 
 
-각 구현체들은 각자의 source repository 에 구성되었고, 사용한 CI/CD 플랫폼은 GCP를 사용하였으며, pipeline build script 는 각 프로젝트 폴더 이하에 cloudbuild.yml 에 포함되었다.
+각 구현체들은 각자의 source repository 에 구성되었고, 사용한 CI/CD 플랫폼은 AWS를 사용하였으며, pipeline build script 는 각 프로젝트 폴더 이하에 buildspec.yml 에 포함되었다.
 
 
 ## 동기식 호출 / 서킷 브레이킹 / 장애격리
@@ -615,7 +673,7 @@ hystrix:
 
 - 피호출 서비스(결제:pay) 의 임의 부하 처리 - 400 밀리에서 증감 220 밀리 정도 왔다갔다 하게
 ```
-# (pay) 결제이력.java (Entity)
+# (payment) Payment.java (Entity)
 
     @PrePersist
     public void onPrePersist(){  //결제이력을 저장한 후 적당한 시간 끌기
@@ -635,7 +693,7 @@ hystrix:
 - 60초 동안 실시
 
 ```
-$ siege -c100 -t60S -r10 --content-type "application/json" 'http://localhost:8081/orders POST {"item": "chicken"}'
+$ siege -c100 -t60S -r10 --content-type "application/json" 'http://localhost:8081/orders POST {"productId": "1001"}'
 
 ** SIEGE 4.0.5
 ** Preparing 100 concurrent users for battle.
@@ -776,22 +834,22 @@ Shortest transaction:	        0.00
 
 - 결제서비스에 대한 replica 를 동적으로 늘려주도록 HPA 를 설정한다. 설정은 CPU 사용량이 15프로를 넘어서면 replica 를 10개까지 늘려준다:
 ```
-kubectl autoscale deploy pay --min=1 --max=10 --cpu-percent=15
+kubectl autoscale deploy payment --min=1 --max=3 --cpu-percent=15
 ```
 - CB 에서 했던 방식대로 워크로드를 2분 동안 걸어준다.
 ```
-siege -c100 -t120S -r10 --content-type "application/json" 'http://localhost:8081/orders POST {"item": "chicken"}'
+siege -c100 -t120S -r10 --content-type "application/json" 'http://localhost:8081/orders POST {"productId": "1001"}'
 ```
 - 오토스케일이 어떻게 되고 있는지 모니터링을 걸어둔다:
 ```
-kubectl get deploy pay -w
+kubectl get deploy payment -w
 ```
 - 어느정도 시간이 흐른 후 (약 30초) 스케일 아웃이 벌어지는 것을 확인할 수 있다:
 ```
 NAME    DESIRED   CURRENT   UP-TO-DATE   AVAILABLE   AGE
-pay     1         1         1            1           17s
-pay     1         2         1            1           45s
-pay     1         4         1            1           1m
+payment     1         1         1            1           17s
+payment     1         2         1            1           45s
+payment     1         4         1            1           1m
 :
 ```
 - siege 의 로그를 보아도 전체적인 성공률이 높아진 것을 확인 할 수 있다. 
@@ -813,7 +871,7 @@ Concurrency:		       96.02
 
 - seige 로 배포작업 직전에 워크로드를 모니터링 함.
 ```
-siege -c100 -t120S -r10 --content-type "application/json" 'http://localhost:8081/orders POST {"item": "chicken"}'
+siege -c100 -t120S -r10 --content-type "application/json" 'http://localhost:8081/orders POST {"productId": "1001"}'
 
 ** SIEGE 4.0.5
 ** Preparing 100 concurrent users for battle.
@@ -903,18 +961,20 @@ Request/Response 방식으로 구현하지 않았기 때문에 서비스가 더�
     @PostPersist
     public void onPostPersist(){
 
-        fooddelivery.external.결제이력 pay = new fooddelivery.external.결제이력();
-        pay.setOrderId(getOrderId());
-        
-        Application.applicationContext.getBean(fooddelivery.external.결제이력Service.class)
-                .결제(pay);
+        //결재 요청 후 kafka
+        Payment payment = new Payment();
+        payment.setOrderId(getId());
+        payment.setRentalPrice(getRentalPrice());
+        payment.setStatus("승인요청");
+        payment.setApprovalDate(getContractDate());
+        OrderApplication.applicationContext.getBean(PaymentService.class).approval(payment);
 
-                --> 
-
-        Application.applicationContext.getBean(fooddelivery.external.결제이력Service.class)
-                .결제2(pay);
+        Ordered ordered = new Ordered();
+        BeanUtils.copyProperties(this, ordered);
+        ordered.publishAfterCommit();
 
     }
+    
 ```
 
 예) Retire 시
@@ -923,14 +983,18 @@ Request/Response 방식으로 구현하지 않았기 때문에 서비스가 더�
 
     @PostPersist
     public void onPostPersist(){
+    /*
+        //결재 요청 후 kafka
+        Payment payment = new Payment();
+        payment.setOrderId(getId());
+        payment.setRentalPrice(getRentalPrice());
+        payment.setStatus("승인요청");
+        payment.setApprovalDate(getContractDate());
+        OrderApplication.applicationContext.getBean(PaymentService.class).approval(payment);
 
-        /**
-        fooddelivery.external.결제이력 pay = new fooddelivery.external.결제이력();
-        pay.setOrderId(getOrderId());
-        
-        Application.applicationContext.getBean(fooddelivery.external.결제이력Service.class)
-                .결제(pay);
-
-        **/
+        Ordered ordered = new Ordered();
+        BeanUtils.copyProperties(this, ordered);
+        ordered.publishAfterCommit();
+    */
     }
 ```
