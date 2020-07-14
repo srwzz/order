@@ -1,8 +1,10 @@
 package rental;
 
-import javax.persistence.*;
 import org.springframework.beans.BeanUtils;
-import java.util.List;
+import rental.external.Payment;
+import rental.external.PaymentService;
+
+import javax.persistence.*;
 
 @Entity
 @Table(name="Order_table")
@@ -20,35 +22,36 @@ public class Order {
 
     @PostPersist
     public void onPostPersist(){
+
+        //결재 요청 후 kafka
+        Payment payment = new Payment();
+        payment.setOrderId(getId());
+        payment.setRentalPrice(getRentalPrice());
+        payment.setStatus("승인요청");
+        payment.setPaidDate(getContractDate());
+        OrderApplication.applicationContext.getBean(PaymentService.class)
+            .approval(payment);
+
         Ordered ordered = new Ordered();
         BeanUtils.copyProperties(this, ordered);
         ordered.publishAfterCommit();
 
-        //Following code causes dependency to external APIs
-        // it is NOT A GOOD PRACTICE. instead, Event-Policy mapping is recommended.
-
-        rental.external.Payment payment = new rental.external.Payment();
-        // mappings goes here
-        OrderApplication.applicationContext.getBean(rental.external.PaymentService.class)
-            .approval(payment);
-
-
     }
 
-    @PreUpdate
-    public void onPreUpdate(){
+    @PostUpdate
+    public void onPostUpdate(){
+        //결재 취소요청 후 kafka
+        rental.external.Payment payment = new rental.external.Payment();
+        payment.setOrderId(getId());
+        payment.setRentalPrice(getRentalPrice());
+        payment.setStatus("승인취소");
+        payment.setPaidDate(getContractDate());
+        OrderApplication.applicationContext.getBean(rental.external.PaymentService.class)
+                .approvalCancel(payment);
+
         OrderCanceled orderCanceled = new OrderCanceled();
         BeanUtils.copyProperties(this, orderCanceled);
         orderCanceled.publishAfterCommit();
-
-        //Following code causes dependency to external APIs
-        // it is NOT A GOOD PRACTICE. instead, Event-Policy mapping is recommended.
-
-        rental.external.Payment payment = new rental.external.Payment();
-        // mappings goes here
-        OrderApplication.applicationContext.getBean(rental.external.PaymentService.class)
-            .approvalCancel(payment);
-
 
     }
 

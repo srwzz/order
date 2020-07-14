@@ -5,7 +5,9 @@ import org.springframework.cloud.stream.annotation.Output;
 import org.springframework.messaging.MessageChannel;
 import org.springframework.messaging.SubscribableChannel;
 
-public interface KafkaProcessor {
+import javax.annotation.processing.Processor;
+
+public interface KafkaProcessor extends Processor {
 
     String INPUT = "event-in";
     String OUTPUT = "event-out";

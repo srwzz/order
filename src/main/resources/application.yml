@@ -13,7 +13,7 @@ spring:
     stream:
       kafka:
         binder:
-          brokers: localhost:9092
+          brokers: 10.250.174.188:9092
         streams:
           binder:
             configuration:
@@ -24,7 +24,7 @@ spring:
                   serde: org.apache.kafka.common.serialization.Serdes$StringSerde
       bindings:
         event-in:
-          group: order
+          group: Order
           destination: rental
           contentType: application/json
         event-out:
@@ -37,6 +37,17 @@ logging:
     org.springframework.cloud: debug
 server:
   port: 8081
+
+feign:
+  hystrix:
+    enabled: true
+
+hystrix:
+  command:
+    # 전역설정
+    default:
+      execution.isolation.thread.timeoutInMilliseconds: 610
+
 ---
 
 spring:
@@ -56,7 +67,7 @@ spring:
                   serde: org.apache.kafka.common.serialization.Serdes$StringSerde
       bindings:
         event-in:
-          group: order
+          group: Order
           destination: rental
           contentType: application/json
         event-out:

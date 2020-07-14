@@ -1,14 +1,12 @@
 package rental;
 
-import rental.config.kafka.KafkaProcessor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.cloud.stream.annotation.StreamListener;
 import org.springframework.messaging.handler.annotation.Payload;
 import org.springframework.stereotype.Service;
+import rental.config.kafka.KafkaProcessor;
 
-import java.io.IOException;
 import java.util.List;
-import java.util.Optional;
 
 @Service
 public class OrderStateViewHandler {
@@ -28,7 +26,7 @@ public class OrderStateViewHandler {
                 orderState.setStatus(ordered.getStatus());
                 orderState.setContractDate(ordered.getStartYmd());
                 orderState.setProductId(ordered.getProductId());
-                orderState.set(ordered.get());
+
                 // view 레파지 토리에 save
                 orderStateRepository.save(orderState);
             }
@@ -126,15 +124,15 @@ public class OrderStateViewHandler {
         }
     }
 
-    @StreamListener(KafkaProcessor.INPUT)
-    public void when_then_DELETE_(@Payload  ) {
-        try {
-            if (.isMe()) {
+   // @StreamListener(KafkaProcessor.INPUT)
+    //public void when_then_DELETE_(@Payload  ) {
+   //     try {
+   //         if (.isMe()) {
                 // view 레파지 토리에 삭제 쿼리
-                orderStateRepository.deleteBy(.get());
-            }
-        }catch (Exception e){
-            e.printStackTrace();
-        }
-    }
+  //              orderStateRepository.deleteBy(.get());
+   //         }
+   //     }catch (Exception e){
+   //         e.printStackTrace();
+  //      }
+   // }
 }

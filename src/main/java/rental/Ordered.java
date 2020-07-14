@@ -11,6 +11,9 @@ public class Ordered extends AbstractEvent {
     private Integer rentalPrice;
     private String status;
 
+    public Ordered(){
+        this.eventType = Ordered.class.getSimpleName();
+    }
     public Long getId() {
         return id;
     }
@@ -59,5 +62,13 @@ public class Ordered extends AbstractEvent {
 
     public void setStatus(String status) {
         this.status = status;
+    }
+
+    public String getEventType() {
+        return eventType;
+    }
+
+    public void setEventType(String eventType) {
+        this.eventType = eventType;
     }
 }
