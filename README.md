@@ -1,9 +1,20 @@
-![image](https://user-images.githubusercontent.com/487999/79708354-29074a80-82fa-11ea-80df-0db3962fb453.png)
+![image](https://user-images.githubusercontent.com/65527020/87420811-e27f6e80-c610-11ea-961b-4895e2532b9b.png)
 
-# 예제 - 음식배달
+# 정수기 렌탈 서비스
 
 본 예제는 MSA/DDD/Event Storming/EDA 를 포괄하는 분석/설계/구현/운영 전단계를 커버하도록 구성한 예제입니다.
 이는 클라우드 네이티브 애플리케이션의 개발에 요구되는 체크포인트들을 통과하기 위한 예시 답안을 포함합니다.
+
+# 구현 Repository  ***
+
+총 7개
+1. https://github.com/SK-teamC/order
+2. https://github.com/SK-teamC/delivery
+3. https://github.com/SK-teamC/product
+4. https://github.com/SK-teamC/payment
+5. https://github.com/SK-teamC/check
+6. https://github.com/SK-teamC/notify
+7. https://github.com/SK-teamC/gateway
 
 # Table of contents
 
@@ -198,7 +209,7 @@
 
 ## 헥사고날 아키텍처 다이어그램 도출
     
-![image](https://user-images.githubusercontent.com/487999/79684772-eba9ab00-826e-11ea-9405-17e2bf39ec76.png)
+![image](https://user-images.githubusercontent.com/65527020/87419081-d3e38800-c60d-11ea-94d9-7a04b3e2a87e.png)
 
 
     - Chris Richardson, MSA Patterns 참고하여 Inbound adaptor와 Outbound adaptor를 구분함
