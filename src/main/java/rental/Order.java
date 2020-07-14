@@ -40,7 +40,7 @@ public class Order {
 
     @PostUpdate
     public void onPostUpdate(){
-        //결재 취소요청 후 kafka
+        //결재 취소요청 후 Kafka
         rental.external.Payment payment = new rental.external.Payment();
         payment.setOrderId(getId());
         payment.setRentalPrice(getRentalPrice());
