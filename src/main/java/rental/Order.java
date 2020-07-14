@@ -28,7 +28,7 @@ public class Order {
         payment.setOrderId(getId());
         payment.setRentalPrice(getRentalPrice());
         payment.setStatus("승인요청");
-        payment.setPaidDate(getContractDate());
+        payment.setApprovalDate(getContractDate());
         OrderApplication.applicationContext.getBean(PaymentService.class)
             .approval(payment);
 
@@ -40,15 +40,6 @@ public class Order {
 
     @PostUpdate
     public void onPostUpdate(){
-        //결재 취소요청 후 Kafka
-        rental.external.Payment payment = new rental.external.Payment();
-        payment.setOrderId(getId());
-        payment.setRentalPrice(getRentalPrice());
-        payment.setStatus("승인취소");
-        payment.setPaidDate(getContractDate());
-        OrderApplication.applicationContext.getBean(rental.external.PaymentService.class)
-                .approvalCancel(payment);
-
         OrderCanceled orderCanceled = new OrderCanceled();
         BeanUtils.copyProperties(this, orderCanceled);
         orderCanceled.publishAfterCommit();

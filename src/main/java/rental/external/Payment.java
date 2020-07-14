@@ -4,7 +4,7 @@ public class Payment {
 
     private Long id;
     private Long orderId;
-    private String paidDate;
+    private String approvalDate;
     private Integer rentalPrice;
     private String status;
 
@@ -20,11 +20,11 @@ public class Payment {
     public void setOrderId(Long orderId) {
         this.orderId = orderId;
     }
-    public String getPaidDate() {
-        return paidDate;
+    public String getApprovalDate() {
+        return approvalDate;
     }
-    public void setPaidDate(String paidDate) {
-        this.paidDate = paidDate;
+    public void setApprovalDate(String approvalDate) {
+        this.approvalDate = approvalDate;
     }
     public Integer getRentalPrice() {
         return rentalPrice;
