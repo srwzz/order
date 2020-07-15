@@ -781,11 +781,17 @@ Shortest transaction:           0.03
 
 - 결제서비스에 대한 replica 를 동적으로 늘려주도록 HPA 를 설정한다. 설정은 CPU 사용량이 15프로를 넘어서면 replica 를 10개까지 늘려준다:
 ```
-kubectl autoscale deploy payment --min=1 --max=3 --cpu-percent=15
+kubectl autoscale deploy order --min=1 --max=2 --cpu-percent=10
+kubectl autoscale deploy notify1 --min=2 --max=10 --cpu-percent=50
 ```
+NAME            REFERENCE                  TARGETS         MINPODS   MAXPODS   REPLICAS   AGE
+order           Deployment/order           <unknown>/10%   1         2         1          118m
+teamc-notify1   Deployment/teamc-notify1   <unknown>/50%   2         10        2          115m
+  
+
 - CB 에서 했던 방식대로 워크로드를 2분 동안 걸어준다.
 ```
-siege -c100 -t120S -r10 --content-type "application/json" 'http://localhost:8081/orders POST {"productId": "1001"}'
+siege -c100 -t120S -v -r10 --content-type "application/json" 'http://order:8080/orders POST {"productId": "1001"}'
 ```
 - 오토스케일이 어떻게 되고 있는지 모니터링을 걸어둔다:
 ```
