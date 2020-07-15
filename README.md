@@ -122,7 +122,7 @@
 # 분석/설계
 
 
-## Event Storming 결과  ***
+## Event Storming 결과
 * MSAEz 로 모델링한 이벤트스토밍 결과:  http://msaez.io/#/storming/yMtAcGqlvFOF8bDmBRcWQNX1Li43/every/081061689478e7b4511cf7fb98c59f3d/-MCBUp0HGJ8THO3TFeHH
 
 
