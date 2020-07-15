@@ -29,8 +29,7 @@ public class Order {
         payment.setRentalPrice(getRentalPrice());
         payment.setStatus("승인요청");
         payment.setApprovalDate(getContractDate());
-        OrderApplication.applicationContext.getBean(PaymentService.class)
-            .approval(payment);
+        OrderApplication.applicationContext.getBean(PaymentService.class).approval(payment);
 
         Ordered ordered = new Ordered();
         BeanUtils.copyProperties(this, ordered);

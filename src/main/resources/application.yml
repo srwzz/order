@@ -13,7 +13,7 @@ spring:
     stream:
       kafka:
         binder:
-          brokers: 10.100.74.200:9092
+          brokers: localhost:9092
         streams:
           binder:
             configuration:
@@ -30,7 +30,9 @@ spring:
         event-out:
           destination: rental
           contentType: application/json
-
+api:
+  url:
+    payment: localhost:8085
 logging:
   level:
     org.hibernate.type: trace
@@ -38,15 +40,7 @@ logging:
 server:
   port: 8081
 
-feign:
-  hystrix:
-    enabled: true
 
-hystrix:
-  command:
-    # 전역설정
-    default:
-      execution.isolation.thread.timeoutInMilliseconds: 610
 ---
 
 spring:
@@ -72,13 +66,4 @@ spring:
         event-out:
           destination: rental1
           contentType: application/json
-          
-feign:
-  hystrix:
-    enabled: true
 
-hystrix:
-  command:
-    # 전역설정
-    default:
-      execution.isolation.thread.timeoutInMilliseconds: 610          
