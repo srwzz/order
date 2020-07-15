@@ -115,6 +115,8 @@ public class OrderStateViewHandler {
                 for(OrderState orderState : orderStateList){
                     // view 객체에 이벤트의 eventDirectValue 를 set 함
                     orderState.setCheckDate(scheduleFixed.getCheckDate());
+                    orderState.setCheckId(scheduleFixed.getId());
+                    orderState.setCheckStatus(scheduleFixed.getStatus());
                     // view 레파지 토리에 save
                     orderStateRepository.save(orderState);
                 }
