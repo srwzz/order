@@ -118,6 +118,12 @@
 
 # 분석/설계
 
+## AS-IS 조직 (Horizontally-Aligned)
+  ![image](https://user-images.githubusercontent.com/487999/79684144-2a893200-826a-11ea-9a01-79927d3a0107.png)
+
+## TO-BE 조직 (Vertically-Aligned)
+  ![image](https://user-images.githubusercontent.com/65527020/87506005-42bff000-c6a5-11ea-852a-268903cae140.png)
+
 
 ## Event Storming 결과
 * MSAEz 로 모델링한 이벤트스토밍 결과:  http://msaez.io/#/storming/yMtAcGqlvFOF8bDmBRcWQNX1Li43/every/081061689478e7b4511cf7fb98c59f3d/-MCBUp0HGJ8THO3TFeHH
