@@ -7,6 +7,7 @@ public class Ordered extends AbstractEvent {
     private Long productId;
     private Integer qty;
     private String contractDate;
+    private String startYmd;
     private String period;
     private Integer rentalPrice;
     private String status;
@@ -35,19 +36,19 @@ public class Ordered extends AbstractEvent {
     public void setQty(Integer qty) {
         this.qty = qty;
     }
+    public String getContractDate() {
+        return contractDate;
+    }
+
+    public void setContractDate(String contractDate) {
+        this.contractDate = contractDate;
+    }
     public String getStartYmd() {
         return contractDate;
     }
 
     public void setStartYmd(String contractDate) {
-        this.contractDate = contractDate;
-    }
-    public String getEndYmd() {
-        return period;
-    }
-
-    public void setEndYmd(String period) {
-        this.period = period;
+        this.startYmd = contractDate;
     }
     public Integer getRentalPrice() {
         return rentalPrice;
