@@ -669,28 +669,58 @@ HTTP/1.1 201     1.25 secs:     207 bytes ==> POST http://localhost:8081/orders
 
 * 요청이 과도하여 CB를 동작함 요청을 차단
 
-HTTP/1.1 500     1.29 secs:     248 bytes ==> POST http://localhost:8081/orders
-HTTP/1.1 500     1.24 secs:     248 bytes ==> POST http://localhost:8081/orders
-HTTP/1.1 500     1.23 secs:     248 bytes ==> POST http://localhost:8081/orders
-HTTP/1.1 500     1.42 secs:     248 bytes ==> POST http://localhost:8081/orders
-HTTP/1.1 500     2.08 secs:     248 bytes ==> POST http://localhost:8081/orders
-HTTP/1.1 201     1.29 secs:     207 bytes ==> POST http://localhost:8081/orders
-HTTP/1.1 500     1.24 secs:     248 bytes ==> POST http://localhost:8081/orders
+HTTP/1.1 201     1.10 secs:     280 bytes ==> POST http://order:8080/orders
+HTTP/1.1 201     1.10 secs:     280 bytes ==> POST http://order:8080/orders
+HTTP/1.1 201     1.10 secs:     280 bytes ==> POST http://order:8080/orders
+HTTP/1.1 201     0.60 secs:     280 bytes ==> POST http://order:8080/orders
+HTTP/1.1 500     1.14 secs:     248 bytes ==> POST http://order:8080/orders
+HTTP/1.1 201     0.66 secs:     280 bytes ==> POST http://order:8080/orders
+HTTP/1.1 201     0.87 secs:     280 bytes ==> POST http://order:8080/orders
+HTTP/1.1 201     0.94 secs:     280 bytes ==> POST http://order:8080/orders
+HTTP/1.1 201     1.03 secs:     280 bytes ==> POST http://order:8080/orders
+HTTP/1.1 201     1.02 secs:     280 bytes ==> POST http://order:8080/orders
+HTTP/1.1 201     0.69 secs:     280 bytes ==> POST http://order:8080/orders
+HTTP/1.1 201     1.03 secs:     280 bytes ==> POST http://order:8080/orders
+HTTP/1.1 201     1.05 secs:     280 bytes ==> POST http://order:8080/orders
+HTTP/1.1 201     1.06 secs:     280 bytes ==> POST http://order:8080/orders
+HTTP/1.1 201     1.09 secs:     280 bytes ==> POST http://order:8080/orders
+HTTP/1.1 201     1.08 secs:     280 bytes ==> POST http://order:8080/orders
+HTTP/1.1 201     1.44 secs:     280 bytes ==> POST http://order:8080/orders
+HTTP/1.1 201     1.06 secs:     280 bytes ==> POST http://order:8080/orders
+HTTP/1.1 201     1.00 secs:     280 bytes ==> POST http://order:8080/orders
+HTTP/1.1 201     1.11 secs:     280 bytes ==> POST http://order:8080/orders
+HTTP/1.1 201     1.12 secs:     280 bytes ==> POST http://order:8080/orders
+HTTP/1.1 201     1.06 secs:     280 bytes ==> POST http://order:8080/orders
+HTTP/1.1 201     1.04 secs:     280 bytes ==> POST http://order:8080/orders
+HTTP/1.1 201     1.15 secs:     280 bytes ==> POST http://order:8080/orders
+HTTP/1.1 201     1.18 secs:     280 bytes ==> POST http://order:8080/orders
+HTTP/1.1 500     0.86 secs:     248 bytes ==> POST http://order:8080/orders
+HTTP/1.1 500     0.37 secs:     248 bytes ==> POST http://order:8080/orders
+HTTP/1.1 500     0.31 secs:     248 bytes ==> POST http://order:8080/orders
+HTTP/1.1 500     0.68 secs:     248 bytes ==> POST http://order:8080/orders
+HTTP/1.1 500     0.34 secs:     248 bytes ==> POST http://order:8080/orders
+HTTP/1.1 201     1.02 secs:     280 bytes ==> POST http://order:8080/orders
 
 * 요청을 어느정도 돌려보내고나니, 기존에 밀린 일들이 처리되었고, 회로를 닫아 요청을 다시 받기 시작
 
-HTTP/1.1 201     1.46 secs:     207 bytes ==> POST http://localhost:8081/orders  
-HTTP/1.1 201     1.33 secs:     207 bytes ==> POST http://localhost:8081/orders
-HTTP/1.1 201     1.36 secs:     207 bytes ==> POST http://localhost:8081/orders
-HTTP/1.1 201     1.63 secs:     207 bytes ==> POST http://localhost:8081/orders
-HTTP/1.1 201     1.65 secs:     207 bytes ==> POST http://localhost:8081/orders
-HTTP/1.1 201     1.68 secs:     207 bytes ==> POST http://localhost:8081/orders
-HTTP/1.1 201     1.69 secs:     207 bytes ==> POST http://localhost:8081/orders
-HTTP/1.1 201     1.71 secs:     207 bytes ==> POST http://localhost:8081/orders
-HTTP/1.1 201     1.71 secs:     207 bytes ==> POST http://localhost:8081/orders
-HTTP/1.1 201     1.74 secs:     207 bytes ==> POST http://localhost:8081/orders
-HTTP/1.1 201     1.76 secs:     207 bytes ==> POST http://localhost:8081/orders
-HTTP/1.1 201     1.79 secs:     207 bytes ==> POST http://localhost:8081/orders
+HTTP/1.1 201     1.02 secs:     280 bytes ==> POST http://order:8080/orders
+HTTP/1.1 201     1.02 secs:     280 bytes ==> POST http://order:8080/orders
+HTTP/1.1 201     1.04 secs:     280 bytes ==> POST http://order:8080/orders
+HTTP/1.1 201     0.88 secs:     280 bytes ==> POST http://order:8080/orders
+HTTP/1.1 201     1.14 secs:     280 bytes ==> POST http://order:8080/orders
+HTTP/1.1 201     0.86 secs:     280 bytes ==> POST http://order:8080/orders
+HTTP/1.1 201     0.94 secs:     280 bytes ==> POST http://order:8080/orders
+HTTP/1.1 201     0.97 secs:     280 bytes ==> POST http://order:8080/orders
+HTTP/1.1 201     0.96 secs:     280 bytes ==> POST http://order:8080/orders
+HTTP/1.1 201     1.02 secs:     280 bytes ==> POST http://order:8080/orders
+HTTP/1.1 201     1.03 secs:     280 bytes ==> POST http://order:8080/orders
+HTTP/1.1 201     0.96 secs:     280 bytes ==> POST http://order:8080/orders
+HTTP/1.1 201     0.96 secs:     280 bytes ==> POST http://order:8080/orders
+HTTP/1.1 201     1.11 secs:     280 bytes ==> POST http://order:8080/orders
+HTTP/1.1 201     0.96 secs:     280 bytes ==> POST http://order:8080/orders
+HTTP/1.1 201     1.11 secs:     280 bytes ==> POST http://order:8080/orders
+HTTP/1.1 201     1.08 secs:     280 bytes ==> POST http://order:8080/orders
+HTTP/1.1 201     1.06 secs:     280 bytes ==> POST http://order:8080/orders
 
 * 다시 요청이 쌓이기 시작하여 건당 처리시간이 610 밀리를 살짝 넘기기 시작 => 회로 열기 => 요청 실패처리
 
@@ -727,40 +757,49 @@ HTTP/1.1 201     4.69 secs:     207 bytes ==> POST http://localhost:8081/orders
 * 이후 이러한 패턴이 계속 반복되면서 시스템은 도미노 현상이나 자원 소모의 폭주 없이 잘 운영됨
 
 
-HTTP/1.1 500     4.76 secs:     248 bytes ==> POST http://localhost:8081/orders
-HTTP/1.1 500     4.23 secs:     248 bytes ==> POST http://localhost:8081/orders
-HTTP/1.1 201     4.76 secs:     207 bytes ==> POST http://localhost:8081/orders
-HTTP/1.1 201     4.74 secs:     207 bytes ==> POST http://localhost:8081/orders
-HTTP/1.1 500     4.82 secs:     248 bytes ==> POST http://localhost:8081/orders
-HTTP/1.1 201     4.82 secs:     207 bytes ==> POST http://localhost:8081/orders
-HTTP/1.1 201     4.84 secs:     207 bytes ==> POST http://localhost:8081/orders
-HTTP/1.1 201     4.66 secs:     207 bytes ==> POST http://localhost:8081/orders
-HTTP/1.1 500     5.03 secs:     248 bytes ==> POST http://localhost:8081/orders
-HTTP/1.1 500     4.22 secs:     248 bytes ==> POST http://localhost:8081/orders
-HTTP/1.1 500     4.19 secs:     248 bytes ==> POST http://localhost:8081/orders
-HTTP/1.1 500     4.18 secs:     248 bytes ==> POST http://localhost:8081/orders
-HTTP/1.1 201     4.69 secs:     207 bytes ==> POST http://localhost:8081/orders
-HTTP/1.1 201     4.65 secs:     207 bytes ==> POST http://localhost:8081/orders
-HTTP/1.1 201     5.13 secs:     207 bytes ==> POST http://localhost:8081/orders
-HTTP/1.1 500     4.84 secs:     248 bytes ==> POST http://localhost:8081/orders
+HTTP/1.1 201     0.91 secs:     280 bytes ==> POST http://order:8080/orders
+HTTP/1.1 201     1.04 secs:     280 bytes ==> POST http://order:8080/orders
+HTTP/1.1 201     1.24 secs:     280 bytes ==> POST http://order:8080/orders
+HTTP/1.1 201     0.55 secs:     280 bytes ==> POST http://order:8080/orders
+HTTP/1.1 201     1.11 secs:     280 bytes ==> POST http://order:8080/orders
+HTTP/1.1 201     0.80 secs:     280 bytes ==> POST http://order:8080/orders
+HTTP/1.1 201     0.81 secs:     280 bytes ==> POST http://order:8080/orders
+HTTP/1.1 201     1.10 secs:     280 bytes ==> POST http://order:8080/orders
+HTTP/1.1 500     0.96 secs:     248 bytes ==> POST http://order:8080/orders
+HTTP/1.1 500     0.51 secs:     248 bytes ==> POST http://order:8080/orders
+HTTP/1.1 201     0.83 secs:     280 bytes ==> POST http://order:8080/orders
+HTTP/1.1 201     0.84 secs:     280 bytes ==> POST http://order:8080/orders
+HTTP/1.1 201     0.94 secs:     280 bytes ==> POST http://order:8080/orders
+HTTP/1.1 201     0.98 secs:     280 bytes ==> POST http://order:8080/orders
+HTTP/1.1 201     1.15 secs:     280 bytes ==> POST http://order:8080/orders
+HTTP/1.1 201     1.06 secs:     280 bytes ==> POST http://order:8080/orders
+HTTP/1.1 201     0.91 secs:     280 bytes ==> POST http://order:8080/orders
+HTTP/1.1 201     1.30 secs:     280 bytes ==> POST http://order:8080/orders
+HTTP/1.1 201     1.02 secs:     280 bytes ==> POST http://order:8080/orders
+HTTP/1.1 201     0.94 secs:     280 bytes ==> POST http://order:8080/orders
+HTTP/1.1 201     0.95 secs:     280 bytes ==> POST http://order:8080/orders
+HTTP/1.1 201     1.05 secs:     280 bytes ==> POST http://order:8080/orders
+HTTP/1.1 201     1.13 secs:     280 bytes ==> POST http://order:8080/orders
+HTTP/1.1 201     0.98 secs:     280 bytes ==> POST http://order:8080/orders
+HTTP/1.1 201     0.92 secs:     280 bytes ==> POST http://order:8080/orders
+HTTP/1.1 201     1.04 secs:     280 bytes ==> POST http://order:8080/orders
 
 ```
-
-Transactions:		        1025 hits
-Availability:		       63.55 %
-Elapsed time:		       59.78 secs
-Data transferred:	        0.34 MB
-Response time:		        5.60 secs
-Transaction rate:	       17.15 trans/sec
-Throughput:		        0.01 MB/sec
-Concurrency:		       96.02
-Successful transactions:        1025
-Failed transactions:	         588
-Longest transaction:	        9.20
-Shortest transaction:	        0.00
-
+Lifting the server siege...
+Transactions:                    156 hits
+Availability:                  77.61 %
+Elapsed time:                   9.59 secs
+Data transferred:               0.05 MB
+Response time:                  1.15 secs
+Transaction rate:              16.27 trans/sec
+Throughput:                     0.01 MB/sec
+Concurrency:                   18.74
+Successful transactions:         156
+Failed transactions:              45
+Longest transaction:            1.72
+Shortest transaction:           0.03
 ```
-- 운영시스템은 죽지 않고 지속적으로 CB 에 의하여 적절히 회로가 열림과 닫힘이 벌어지면서 자원을 보호하고 있음을 보여줌. 하지만, 63.55% 가 성공하였고, 46%가 실패했다는 것은 고객 사용성에 있어 좋지 않기 때문에 Retry 설정과 동적 Scale out (replica의 자동적 추가,HPA) 을 통하여 시스템을 확장 해주는 후속처리가 필요.
+- 운영시스템은 죽지 않고 지속적으로 CB 에 의하여 적절히 회로가 열림과 닫힘이 벌어지면서 자원을 보호하고 있음을 보여줌. 하지만, 63.55% 가 성공하였고, 23%가 실패했다는 것은 고객 사용성에 있어 좋지 않기 때문에 Retry 설정과 동적 Scale out (replica의 자동적 추가,HPA) 을 통하여 시스템을 확장 해주는 후속처리가 필요.
 
 - Retry 의 설정 (istio)
 - Availability 가 높아진 것을 확인 (siege)
@@ -861,76 +900,3 @@ Concurrency:		       96.02
 ```
 
 배포기간 동안 Availability 가 변화없기 때문에 무정지 재배포가 성공한 것으로 확인됨.
-
-
-# 신규 개발 조직의 추가
-
-  ![image](https://user-images.githubusercontent.com/487999/79684133-1d6c4300-826a-11ea-94a2-602e61814ebf.png)
-
-
-## 마케팅팀의 추가
-    - KPI: 신규 고객의 유입률 증대와 기존 고객의 충성도 향상
-    - 구현계획 마이크로 서비스: 기존 customer 마이크로 서비스를 인수하며, 고객에 음식 및 맛집 추천 서비스 등을 제공할 예정
-
-## 이벤트 스토밍 
-    ![image](https://user-images.githubusercontent.com/487999/79685356-2b729180-8273-11ea-9361-a434065f2249.png)
-
-
-## 헥사고날 아키텍처 변화 
-
-![image](https://user-images.githubusercontent.com/487999/79685243-1d704100-8272-11ea-8ef6-f4869c509996.png)
-
-## 구현  
-
-기존의 마이크로 서비스에 수정을 발생시키지 않도록 Inbund 요청을 REST 가 아닌 Event 를 Subscribe 하는 방식으로 구현. 기존 마이크로 서비스에 대하여 아키텍처나 기존 마이크로 서비스들의 데이터베이스 구조와 관계없이 추가됨. 
-
-## 운영과 Retirement
-
-Request/Response 방식으로 구현하지 않았기 때문에 서비스가 더이상 불필요해져도 Deployment 에서 제거되면 기존 마이크로 서비스에 어떤 영향도 주지 않음.
-
-* [비교] 결제 (pay) 마이크로서비스의 경우 API 변화나 Retire 시에 app(주문) 마이크로 서비스의 변경을 초래함:
-
-예) API 변화시
-```
-# Order.java (Entity)
-
-    @PostPersist
-    public void onPostPersist(){
-
-        //결재 요청 후 kafka
-        Payment payment = new Payment();
-        payment.setOrderId(getId());
-        payment.setRentalPrice(getRentalPrice());
-        payment.setStatus("승인요청");
-        payment.setApprovalDate(getContractDate());
-        OrderApplication.applicationContext.getBean(PaymentService.class).approval(payment);
-
-        Ordered ordered = new Ordered();
-        BeanUtils.copyProperties(this, ordered);
-        ordered.publishAfterCommit();
-
-    }
-    
-```
-
-예) Retire 시
-```
-# Order.java (Entity)
-
-    @PostPersist
-    public void onPostPersist(){
-    /*
-        //결재 요청 후 kafka
-        Payment payment = new Payment();
-        payment.setOrderId(getId());
-        payment.setRentalPrice(getRentalPrice());
-        payment.setStatus("승인요청");
-        payment.setApprovalDate(getContractDate());
-        OrderApplication.applicationContext.getBean(PaymentService.class).approval(payment);
-
-        Ordered ordered = new Ordered();
-        BeanUtils.copyProperties(this, ordered);
-        ordered.publishAfterCommit();
-    */
-    }
-```
