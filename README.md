@@ -185,7 +185,7 @@
 ![image](https://user-images.githubusercontent.com/65527020/87492623-ebf6ee00-c685-11ea-982c-542b9133f393.png)
 
     - 마이크로 서비스를 넘나드는 시나리오에 대한 트랜잭션 처리
-        - 고객 주문시 결제처리:  결제가 완료되지 않은 주문은 절대 받지 않는다는 경영자의 오랜 신념(?) 에 따라, ACID 트랜잭션 적용. 주문완료시 결제처리에 대해서는 Request-Response 방식 처리
+        - 고객 주문시 결제처리:  결제가 완료되지 않은 주문은 절대 받지 않는다. ACID 트랜잭션 적용. 주문완료시 결제처리에 대해서는 Request-Response 방식 처리
         - 상품재고 변경 및 배송처리:  order 에서 delivery, product 마이크로서비스로 주문요청이 전달되는 과정에 있어서 delivery, product 마이크로 서비스가 별도의 배포주기를 가지기 때문에 Eventual Consistency 방식으로 트랜잭션 처리함.
         - 나머지 모든 inter-microservice 트랜잭션: 주문상태, 배송상태 등 모든 이벤트에 대해 카톡을 처리하는 등, 데이터 일관성의 시점이 크리티컬하지 않은 모든 경우가 대부분이라 판단, Eventual Consistency 를 기본으로 채택함.
 
@@ -345,10 +345,10 @@ public interface OrderRepository extends PagingAndSortingRepository<Order, Long>
 - 적용 후 REST API 의 테스트
 ```
 # order 서비스의 주문처리
-http POST localhost:8081/orders productId=1001 rentalPrice=10000 contractDate=20200714 state=ordered
+http POST localhost:8081/orders productId=1 rentalPrice=10000 contractDate=20200715 state=ordered
 
 # delivery 서비스의 배송처리
-http localhost:8082/deliverys orderId=1
+http POST localhost:8082/deliverys id=1
 
 # 주문 상태 확인
 http localhost:8081/orderStates/1
@@ -391,41 +391,6 @@ public interface OrderRepository extends PagingAndSortingRepository<Order, Long>
     database: mongo-example
 
 ```
-
-## 폴리글랏 프로그래밍
-
-고객관리 서비스(customer)의 시나리오인 주문상태, 배달상태 변경에 따라 고객에게 카톡메시지 보내는 기능의 구현 파트는 해당 팀이 python 을 이용하여 구현하기로 하였다. 해당 파이썬 구현체는 각 이벤트를 수신하여 처리하는 Kafka consumer 로 구현되었고 코드는 다음과 같다:
-```
-from flask import Flask
-from redis import Redis, RedisError
-from kafka import KafkaConsumer
-import os
-import socket
-
-
-# To consume latest messages and auto-commit offsets
-consumer = KafkaConsumer('fooddelivery',
-                         group_id='',
-                         bootstrap_servers=['localhost:9092'])
-for message in consumer:
-    print ("%s:%d:%d: key=%s value=%s" % (message.topic, message.partition,
-                                          message.offset, message.key,
-                                          message.value))
-
-    # 카톡호출 API
-```
-
-파이선 애플리케이션을 컴파일하고 실행하기 위한 도커파일은 아래와 같다 (운영단계에서 할일인가? 아니다 여기 까지가 개발자가 할일이다. Immutable Image):
-```
-FROM python:2.7-slim
-WORKDIR /app
-ADD . /app
-RUN pip install --trusted-host pypi.python.org -r requirements.txt
-ENV NAME World
-EXPOSE 8090
-CMD ["python", "policy-handler.py"]
-```
-
 
 ## 동기식 호출 과 Fallback 처리
 
@@ -477,30 +442,25 @@ public interface PaymentService {
 ```
 - 동기식 호출에서는 호출 시간에 따른 타임 커플링이 발생하며, 결제 시스템이 장애가 나면 주문도 못받는다는 것을 확인:
 
-
 ```
 # 결제 (pay) 서비스를 잠시 내려놓음 (ctrl+c)
 
 #주문처리
-http localhost:8081/orders productId=1001 rentalPrice=10000 contractDate=20200714   #Fail
-http localhost:8081/orders productId=1002 rentalPrice=20000 contractDate=20200714   #Fail
+http POST localhost:8081/orders productId=1001 rentalPrice=10000 contractDate=20200715   #Fail
+http POST localhost:8081/orders productId=1002 rentalPrice=20000 contractDate=20200715   #Fail
 
 #결제서비스 재기동
 cd payment
 mvn spring-boot:run
 
 #주문처리
-http localhost:8081/orders productId=1001 rentalPrice=10000 contractDate=20200714   #Success
-http localhost:8081/orders productId=1002 rentalPrice=20000 contractDate=20200714   #Success
+http POST localhost:8081/orders productId=1001 rentalPrice=10000 contractDate=20200714   #Success
+http POST localhost:8081/orders productId=1002 rentalPrice=20000 contractDate=20200714   #Success
 ```
 
 - 또한 과도한 요청시에 서비스 장애가 도미노 처럼 벌어질 수 있다. (서킷브레이커, 폴백 처리는 운영단계에서 설명한다.)
 
-
-
-
 ## 비동기식 호출 / 시간적 디커플링 / 장애격리 / 최종 (Eventual) 일관성 테스트
-
 
 결제가 이루어진 후에 상품시스템으로 이를 알려주는 행위는 동기식이 아니라 비 동기식으로 처리하여 상품 시스템의 처리를 위하여 결제주문이 블로킹 되지 않도록 처리한다.
  
@@ -566,29 +526,34 @@ public class PolicyHandler{
     public void wheneverOrderCanceled_ProductChange(@Payload OrderCanceled orderCanceled){
 
         if(orderCanceled.isMe()){
-            Product product = new Product();
-            product.setId(orderCanceled.getId());
-            product.setAmount(product.getAmount() != null ? product.getAmount().intValue()+1 : 0 );
-            productRepository.save(product);
-            System.out.println("##### listener wheneverOrderCanceled_ProductChange : " + orderCanceled.toJson());
+            Product product = null;
+            Optional<Product> optional = productRepository.findById(orderCanceled.getProductId());
+            if(optional.isPresent()) {
+                product = optional.get();
+                product.setId(orderCanceled.getProductId());
+                product.setAmount(product.getAmount() != null ? product.getAmount().intValue() + 1 : 0);
+                productRepository.save(product);
+            }
         }
     }
     @StreamListener(KafkaProcessor.INPUT)
     public void wheneverOrdered_ProductChange(@Payload Ordered ordered){
-
         if(ordered.isMe()){
-            Product product = new Product();
-            product.setId(ordered.getId());
-            product.setAmount(product.getAmount() != null ? product.getAmount().intValue()-1 : 0 );
-            productRepository.save(product);
-            System.out.println("##### listener wheneverOrdered_ProductChange : " + ordered.toJson());
+            Product product = null;
+            Optional<Product> optional = productRepository.findById(ordered.getProductId());
+            if(optional.isPresent()) {
+                product = optional.get();
+
+                product.setId(ordered.getProductId());
+                product.setAmount(product.getAmount() != null ? product.getAmount().intValue() - 1 : 0);
+                productRepository.save(product);
+            }
         }
     }
-
 }
 
 ```
-실제 구현을 하자면, 카톡 등으로 는 노티를 받고, 요리를 마친후, 주문 상태를 UI에 입력할테니, 우선 주문정보를 DB에 받아놓은 후, 이후 처리는 해당 Aggregate 내에서 하면 되겠다.:
+실제 구현을 하자면, 카톡 등으로 주문,배송,점검일정에 대한 노티를 받는다.
   
 ```
 package rental;
@@ -596,26 +561,19 @@ package rental;
 ```
 @Service
 public class PolicyHandler{
+    @Autowired NotifyRepository notifyRepository;
     private static final String TOPIC_NAME = "rental";
     @StreamListener(KafkaProcessor.INPUT)
     public void onStringEventListener(@Payload String eventString){
 
     }
+    Message message = new Message();
 
     @StreamListener(KafkaProcessor.INPUT)
     public void wheneverOrdered_Notify(@Payload Ordered ordered){
-        Properties props = new Properties();
-        props.put(ProducerConfig.BOOTSTRAP_SERVERS_CONFIG, "10.100.74.200:9092");
-        props.put(ProducerConfig.KEY_SERIALIZER_CLASS_CONFIG, StringSerializer.class.getName());
-        props.put(ProducerConfig.VALUE_SERIALIZER_CLASS_CONFIG, StringSerializer.class.getName());
-
-        KafkaProducer<String, String> producer = new KafkaProducer<>(props);
-
-        String message = "##### 주문이 완료되었습니다. 주문번호 : " + ordered.getId() + ", 상품번호 : " + ordered.getProductId();
-        ProducerRecord<String, String> record = new ProducerRecord<>(TOPIC_NAME, message);
         if(ordered.isMe()){
-            producer.send(record,((recordMetadata, e) -> {}));
-            //System.out.println("##### 주문이 완료되었습니다. 주문번호 : " + ordered.getId() + ", 상품번호 : " + ordered.getProductId());
+            message.setMessage( "주문이 완료되었습니다. 주문번호 : " + ordered.getId() + ", 상품번호 : " + ordered.getProductId() );
+            notifyRepository.save(message);
         }
     }
 
@@ -626,8 +584,8 @@ public class PolicyHandler{
 # 배송 서비스 (delivery) 를 잠시 내려놓음 (ctrl+c)
 
 #주문처리
-http localhost:8081/orders productId=1001 rentalPrice=10000 contractDate=20200714   #Success
-http localhost:8081/orders productId=1002 rentalPrice=20000 contractDate=20200714   #Success
+http localhost:8081/orders productId=1 rentalPrice=10000 contractDate=20200715   #Success
+http localhost:8081/orders productId=2 rentalPrice=20000 contractDate=20200715   #Success
 
 #주문상태 확인
 http localhost:8081/orders     # 주문상태 안바뀜 확인
@@ -640,11 +598,9 @@ mvn spring-boot:run
 http localhost:8081/orderStates     # 모든 주문의 상태가 "배송됨"으로 확인
 ```
 
-
 # 운영
 
 ## CI/CD 설정
-
 
 각 구현체들은 각자의 source repository 에 구성되었고, 사용한 CI/CD 플랫폼은 AWS를 사용하였으며, pipeline build script 는 각 프로젝트 폴더 이하에 buildspec.yml 에 포함되었다.
 
@@ -838,7 +794,7 @@ siege -c100 -t120S -r10 --content-type "application/json" 'http://localhost:8081
 ```
 - 오토스케일이 어떻게 되고 있는지 모니터링을 걸어둔다:
 ```
-kubectl get deploy payment -w
+kubectl get deploy order -w
 ```
 - 어느정도 시간이 흐른 후 (약 30초) 스케일 아웃이 벌어지는 것을 확인할 수 있다:
 ```
@@ -902,7 +858,6 @@ Concurrency:		       96.02
 
 ```
 # deployment.yaml 의 readiness probe 의 설정:
-
 
 kubectl apply -f kubernetes/deployment.yaml
 ```
