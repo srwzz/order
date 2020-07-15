@@ -669,7 +669,7 @@ HTTP/1.1 201     1.25 secs:     207 bytes ==> POST http://localhost:8081/orders
 
 * 요청이 과도하여 CB를 동작함 요청을 차단
 
-HTTP/1.1 500     1.29 secs:     248 bytes ==> POST http://localhost:8081/orders   
+HTTP/1.1 500     1.29 secs:     248 bytes ==> POST http://localhost:8081/orders
 HTTP/1.1 500     1.24 secs:     248 bytes ==> POST http://localhost:8081/orders
 HTTP/1.1 500     1.23 secs:     248 bytes ==> POST http://localhost:8081/orders
 HTTP/1.1 500     1.42 secs:     248 bytes ==> POST http://localhost:8081/orders
@@ -743,23 +743,8 @@ HTTP/1.1 201     4.69 secs:     207 bytes ==> POST http://localhost:8081/orders
 HTTP/1.1 201     4.65 secs:     207 bytes ==> POST http://localhost:8081/orders
 HTTP/1.1 201     5.13 secs:     207 bytes ==> POST http://localhost:8081/orders
 HTTP/1.1 500     4.84 secs:     248 bytes ==> POST http://localhost:8081/orders
-HTTP/1.1 500     4.25 secs:     248 bytes ==> POST http://localhost:8081/orders
-HTTP/1.1 500     4.25 secs:     248 bytes ==> POST http://localhost:8081/orders
-HTTP/1.1 201     4.80 secs:     207 bytes ==> POST http://localhost:8081/orders
-HTTP/1.1 500     4.87 secs:     248 bytes ==> POST http://localhost:8081/orders
-HTTP/1.1 500     4.33 secs:     248 bytes ==> POST http://localhost:8081/orders
-HTTP/1.1 201     4.86 secs:     207 bytes ==> POST http://localhost:8081/orders
-HTTP/1.1 500     4.96 secs:     248 bytes ==> POST http://localhost:8081/orders
-HTTP/1.1 500     4.34 secs:     248 bytes ==> POST http://localhost:8081/orders
-HTTP/1.1 500     4.04 secs:     248 bytes ==> POST http://localhost:8081/orders
-HTTP/1.1 201     4.50 secs:     207 bytes ==> POST http://localhost:8081/orders
-HTTP/1.1 201     4.95 secs:     207 bytes ==> POST http://localhost:8081/orders
-HTTP/1.1 201     4.54 secs:     207 bytes ==> POST http://localhost:8081/orders
-HTTP/1.1 201     4.65 secs:     207 bytes ==> POST http://localhost:8081/orders
 
-
-:
-:
+```
 
 Transactions:		        1025 hits
 Availability:		       63.55 %
