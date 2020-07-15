@@ -616,7 +616,7 @@ hystrix:
 - 60초 동안 실시
 
 ```
-$ siege -c100 -t60S -r10 --content-type "application/json" 'http://localhost:8081/orders POST {"productId": "1001"}'
+$ siege -c20 -t10S -r10 --content-type "application/json" 'http://localhost:8081/orders POST {"productId": "1001"}'
 
 ** SIEGE 4.0.5
 ** Preparing 100 concurrent users for battle.
