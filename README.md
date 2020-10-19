@@ -1,23 +1,20 @@
 ![image](https://user-images.githubusercontent.com/65527020/87420811-e27f6e80-c610-11ea-961b-4895e2532b9b.png)
 
-# 정수기 렌탈 서비스
+# 전기자전거 대여 서비스
 
 본 예제는 MSA/DDD/Event Storming/EDA 를 포괄하는 분석/설계/구현/운영 전단계를 커버하도록 구성한 시스템입니다.
 
 # 구현 Repository 
 
-총 7개
+총 4개
 1. https://github.com/SK-teamC/order
-2. https://github.com/SK-teamC/delivery
-3. https://github.com/SK-teamC/product
-4. https://github.com/SK-teamC/payment
-5. https://github.com/SK-teamC/check
-6. https://github.com/SK-teamC/notify
-7. https://github.com/SK-teamC/gateway
+2. https://github.com/SK-teamC/product
+3. https://github.com/SK-teamC/payment
+4. https://github.com/SK-teamC/gateway
 
 # Table of contents
 
-- [예제 - 정수기렌탈서비스](#---)
+- [예제 - 전기자전거 대여 서비스](#---)
   - [서비스 시나리오](#서비스-시나리오)
   - [체크포인트](#체크포인트)
   - [분석/설계](#분석설계)
@@ -34,10 +31,10 @@
 
 # 서비스 시나리오
 
-정수기 렌탈 서비스
+전기 자전거 대여 서비스
 
 기능적 요구사항
-1. 고객이 정수기를 선택하여 주문한다
+1. 고객이 자전거를 선택하여 주문한다
 1. 고객이 결제한다
 1. 주문이 완료 되면 주문 내역이 배송팀에게 전달된다
 1. 배송팀이 확인하여 정수기를 배달한다
